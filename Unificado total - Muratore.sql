@@ -917,3 +917,90 @@ SELECT * FROM informacion_bancaria.provincia where nombre_provincia = 'CHACO_PRU
 --Finalmente verifico el registro de insert en la tabla bitacora_provincia creada al efecto
 SELECT * FROM bitacora_provincia;
 */
+
+/*CREACION DE PERMISOS Y GRANT*/
+
+use mysql;
+
+/*USUARIO ANALISTAS*/
+
+/*1_La creacion de usuario tiene la capacidad de asignar un perfil a una persona o grupo de personas para navegar con las tablas en la base de datos. Puede haber distintos perfiles y cada perfil puede tener distintos permisos para trabajar sobre las tablas*/
+
+create user 'analistas'@'localhost' identified by 'Anto100';
+
+/*2_El permiso de select posibilita solo la lectura de los datos de las tablas*/
+
+grant select on *.* to 'analistas'@'localhost';
+
+/*USUARIO ADMINISTRADOR*/
+
+/*1_La creacion de usuario tiene la capacidad de asignar un perfil a una persona o grupo de personas para navegar con las tablas en la base de datos. Puede haber distintos perfiles y cada perfil puede tener distintos permisos para trabajar sobre las tablas*/
+
+create user 'administrador'@'localhost' identified by 'Anto100';
+
+/*2_Los permisos de select, insert y update posibilita realizar la lectura, inserción y modificación de los datos de las tablas respectivamente*/
+
+grant select, insert, update on *.* to 'administrador'@'localhost';
+
+/*CONSULTA DE RETORNO
+select * from user;
+*/
+
+/*SENTENCIA DE SUBLENGUAJE TCL N° 1*/
+
+USE informacion_bancaria;
+
+/*Inicio de la transacción*/
+START TRANSACTION;
+
+/*Ejecutar el permiso para deletear registro FK*/
+SET FOREIGN_KEY_CHECKS = 0;
+
+/*Ejecutar el comando DELETE para el registro a eliminar*/
+DELETE FROM
+informacion_bancaria.domicilio
+WHERE Id_domicilio = '4';
+    
+/*Ejecutar el rollback*/
+rollback;
+
+/*Ejecutar el commit*/
+commit;
+
+/*Select a la tabla*/
+select * from informacion_bancaria.domicilio;
+
+/*Insert del dato deleteado
+
+INSERT INTO DOMICILIO (`Id_domicilio`,`Domicilio`,`Localidad`,`Id_provincia`) VALUES (4,'AV. FUERZA AEREA 125','Santo Tome',6);*/
+
+
+/*SENTENCIA DE SUBLENGUAJE TCL N° 2*/
+
+USE informacion_bancaria;
+
+/*Inicio de la transacción*/
+START TRANSACTION;
+
+/*Incerción de registros*/
+savepoint inicio;
+INSERT INTO REGISTRO_BANCARIO (`Id_banco`,`Nombre_banco`,`Estado`,`Id_provincia`) VALUES (NULL,'REGISTROGENERICO_1','NO APTO',4);
+INSERT INTO REGISTRO_BANCARIO (`Id_banco`,`Nombre_banco`,`Estado`,`Id_provincia`) VALUES (NULL,'REGISTROGENERICO_2','APTO',6);
+INSERT INTO REGISTRO_BANCARIO (`Id_banco`,`Nombre_banco`,`Estado`,`Id_provincia`) VALUES (NULL,'REGISTROGENERICO_3','NO APTO',7);
+INSERT INTO REGISTRO_BANCARIO (`Id_banco`,`Nombre_banco`,`Estado`,`Id_provincia`) VALUES (NULL,'REGISTROGENERICO_4','APTO',10);
+SAVEPOINT lote1al4;
+INSERT INTO REGISTRO_BANCARIO (`Id_banco`,`Nombre_banco`,`Estado`,`Id_provincia`) VALUES (NULL,'REGISTROGENERICO_5','NO APTO',3);
+INSERT INTO REGISTRO_BANCARIO (`Id_banco`,`Nombre_banco`,`Estado`,`Id_provincia`) VALUES (NULL,'REGISTROGENERICO_6','APTO',9);
+INSERT INTO REGISTRO_BANCARIO (`Id_banco`,`Nombre_banco`,`Estado`,`Id_provincia`) VALUES (NULL,'REGISTROGENERICO_7','NO APTO',8);
+INSERT INTO REGISTRO_BANCARIO (`Id_banco`,`Nombre_banco`,`Estado`,`Id_provincia`) VALUES (NULL,'REGISTROGENERICO_8','APTO',1);
+SAVEPOINT lote5al8;
+
+ROLLBACK TO lote1al4;
+
+/* elimina el savepoint */
+
+release savepoint lote1al4;
+
+/*Select a la tabla*/
+
+select * from informacion_bancaria.registro_bancario;
